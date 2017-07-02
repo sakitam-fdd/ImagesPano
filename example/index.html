@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../dist/static/css/ImagesPano.css">
+</head>
+<body>
+<div class="parentIndex" id="container"></div>
+<script src="../node_modules/three/build/three.js"></script>
+<script src="../dist/ImagesPano.js"></script>
+<script type="text/javascript">
+  var div = document.getElementById('container');
+  var pano = new ImagesPano({
+    panorama: './logo.png',
+    container: div
+  });
+  console.log(pano)
+</script>
+</body>
+</html>
