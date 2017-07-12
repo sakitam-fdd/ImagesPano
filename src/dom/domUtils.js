@@ -251,3 +251,19 @@ export const removeListener = function (element, type, fn, context) {
   element[eventKey] = null
   return this
 }
+/**
+ * 读取数据属性
+ * @param data
+ * @param attr
+ * @returns {string}
+ */
+export const getAttribute = function (data, attr) {
+  let a = data.indexOf('GPano:' + attr) + attr.length + 8
+  let b = data.indexOf('"', a)
+  if (b === -1) {
+    // XML-Metadata
+    a = data.indexOf('GPano:' + attr) + attr.length + 7
+    b = data.indexOf('<', a)
+  }
+  return data.substring(a, b)
+}

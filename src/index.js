@@ -2,8 +2,10 @@ require('./style/index.scss')
 import * as DomUtils from './dom/domUtils'
 import * as browserUtils from './browserUtils/browser'
 import mix from './utils/mixin'
-import AjaxUtil from './utils/ajax'
-class ImagesPano extends mix(AjaxUtil) {
+import * as AjaxUtil from './utils/ajax'
+import DateUtils from './utils/DataUtils'
+import ThreeUtils from './core/ThreeUtils'
+class ImagesPano extends mix(DateUtils, ThreeUtils) {
   constructor (params) {
     super()
     /**
@@ -44,6 +46,33 @@ class ImagesPano extends mix(AjaxUtil) {
      * @type {boolean}
      */
     this.corsAnonymous = (this.options['corsAnonymous'] !== undefined) ? !!this.options['corsAnonymous'] : true
+
+    /**
+     * 是否重新计算坐标
+     * @type {boolean}
+     */
+    this.recalculateCoords = false
+    /**
+     * 全景图大小
+     * @type {{fullWidth: null, fullHeight: null, croppedWidth: null, croppedHeight: null, croppedX: null, croppedY: null}}
+     */
+    this.panoSize = {
+      fullWidth: null,
+      fullHeight: null,
+      croppedWidth: null,
+      croppedHeight: null,
+      croppedX: null,
+      croppedY: null
+    }
+    /**
+     * 视图
+     * @type {{horizontalFov: number, verticalFov: number}}
+     */
+    this.capturedView = {
+      horizontalFov: 360,
+      verticalFov: 180
+    }
+    this.actionParams()
     /**
      * 初始化
      */
@@ -56,6 +85,30 @@ class ImagesPano extends mix(AjaxUtil) {
    */
   getVersion () {
     return this.version
+  }
+
+  /**
+   * 更新参数
+   */
+  actionParams () {
+    // 视图大小
+    if (this.options['panoSize'] !== undefined) {
+      for (let key in this.panoSize) {
+        if (this.options['panoSize'][key] !== undefined) {
+          this.panoSize[key] = parseInt(this.options['panoSize'][key])
+        }
+      }
+      this.readxmp = false
+    }
+    // 捕获的视野角度
+    if (this.options['capturedView'] !== undefined) {
+      for (let key in this.capturedView) {
+        if (this.options['capturedView'][key] !== undefined) {
+          this.capturedView[key] = parseFloat(this.options['capturedView'][key])
+        }
+      }
+      this.readxmp = false
+    }
   }
 
   /**
@@ -79,9 +132,9 @@ class ImagesPano extends mix(AjaxUtil) {
       return false
     }
     // 使用XMP文件模型引入
-    if (this.readxmp && !this.options['panorama'].match(/^data:image\/[a-z]+;base64/)) {
-      this.loadXMP().then(res => {
-        console.log(res)
+    if (this.readxmp && !this.options['imageUrl'].match(/^data:image\/[a-z]+;base64/)) {
+      AjaxUtil.loadXMP(this.options['imageUrl']).then(res => {
+        this.onDataLoad(res)
       }).catch(error => {
         console.log(error)
       })
@@ -90,8 +143,26 @@ class ImagesPano extends mix(AjaxUtil) {
     }
   }
 
-  createBuffer () {
-    console.log('buffer')
+  /**
+   * 数据加载成功操作
+   * @param xhr
+   */
+  onDataLoad (xhr) {
+    let data = this.getXMPData(xhr.responseText)
+    if (!data.length) {
+      this.createBuffer()
+      return
+    }
+    this.panoSize = {
+      fullWidth: parseInt(DomUtils.getAttribute(data, 'FullPanoWidthPixels')),
+      fullHeight: parseInt(DomUtils.getAttribute(data, 'FullPanoHeightPixels')),
+      croppedWidth: parseInt(DomUtils.getAttribute(data, 'CroppedAreaImageWidthPixels')),
+      croppedHeight: parseInt(DomUtils.getAttribute(data, 'CroppedAreaImageHeightPixels')),
+      croppedX: parseInt(DomUtils.getAttribute(data, 'CroppedAreaLeftPixels')),
+      croppedY: parseInt(DomUtils.getAttribute(data, 'CroppedAreaTopPixels')),
+    }
+    this.recalculateCoords = true
+    this.createBuffer()
   }
 }
 export default ImagesPano
