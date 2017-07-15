@@ -4,8 +4,8 @@ import * as browserUtils from './browserUtils/browser'
 import mix from './utils/mixin'
 import * as AjaxUtil from './utils/ajax'
 import DateUtils from './utils/DataUtils'
-import ThreeUtils from './core/ThreeUtils'
-class ImagesPano extends mix(DateUtils, ThreeUtils) {
+import ThreeInstance from './core/ThreeInstance'
+class ImagesPano extends mix(DateUtils, ThreeInstance) {
   constructor (params) {
     super()
     /**
@@ -151,7 +151,7 @@ class ImagesPano extends mix(DateUtils, ThreeUtils) {
     let data = this.getXMPData(xhr.responseText)
     if (!data.length) {
       this.createBuffer()
-      return
+      return false
     }
     this.panoSize = {
       fullWidth: parseInt(DomUtils.getAttribute(data, 'FullPanoWidthPixels')),
@@ -159,7 +159,7 @@ class ImagesPano extends mix(DateUtils, ThreeUtils) {
       croppedWidth: parseInt(DomUtils.getAttribute(data, 'CroppedAreaImageWidthPixels')),
       croppedHeight: parseInt(DomUtils.getAttribute(data, 'CroppedAreaImageHeightPixels')),
       croppedX: parseInt(DomUtils.getAttribute(data, 'CroppedAreaLeftPixels')),
-      croppedY: parseInt(DomUtils.getAttribute(data, 'CroppedAreaTopPixels')),
+      croppedY: parseInt(DomUtils.getAttribute(data, 'CroppedAreaTopPixels'))
     }
     this.recalculateCoords = true
     this.createBuffer()

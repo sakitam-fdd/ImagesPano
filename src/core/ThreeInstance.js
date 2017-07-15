@@ -1,4 +1,4 @@
-class ThreeUtils {
+class ThreeInstance {
   loadTexture (path) {
     let texture = new THREE.Texture()
     let loader = new THREE.ImageLoader()
@@ -136,21 +136,17 @@ class ThreeUtils {
    * @private
    * @return {void}
    **/
-
   render () {
-    var point = new THREE.Vector3();
-    point.setX(Math.cos(lat) * Math.sin(long));
-    point.setY(Math.sin(lat));
-    point.setZ(Math.cos(lat) * Math.cos(long));
-
-    camera.lookAt(point);
-
-    // Stereo?
-    if (stereo_effect !== null)
-      stereo_effect.render(scene, camera);
-
-    else
-      renderer.render(scene, camera);
+    let point = new THREE.Vector3()
+    point.setX(Math.cos(lat) * Math.sin(long))
+    point.setY(Math.sin(lat))
+    point.setZ(Math.cos(lat) * Math.cos(long))
+    camera.lookAt(point)
+    if (stereo_effect !== null) {
+      stereo_effect.render(scene, camera)
+    } else {
+      renderer.render(scene, camera)
+    }
   }
 
   /**
@@ -311,4 +307,4 @@ class ThreeUtils {
   }
 }
 
-export default ThreeUtils
+export default ThreeInstance

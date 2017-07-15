@@ -18,7 +18,7 @@ module.exports = {
     umdNamedDefine: true
   },
   externals: {
-    THREE: 'three'
+    THREE: 'THREE'
   },
   module: {
     rules: [
