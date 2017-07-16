@@ -158,7 +158,7 @@ class DeviceOrientationEvent {
           }
         }
 
-        //fix to work on iOS (tested on Safari and Chrome)
+        // fix to work on iOS (tested on Safari and Chrome)
         if (engine === 'WebKit' && !!window.orientation) {
           if (phi < 0) {
             phi = (phi + 180) * -1;

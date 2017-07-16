@@ -1,5 +1,17 @@
-.psv-autorotate-button {
-  width: #{$psv-buttons-height + $psv-buttons-padding / 2};
-  height: #{$psv-buttons-height + $psv-buttons-padding / 2};
-  padding: #{$psv-buttons-padding / 4 * 3};
+.images-pano-tool-button-autorotate {
+  css-float: left;
+  box-sizing: inherit;
+  padding: 10px;
+  position: relative;
+  cursor: pointer;
+  .images-pano-tool-button-autorotate-sphere {
+    box-sizing: inherit;
+    border-radius: 50%;
+  }
+  .images-pano-tool-button-autorotate-equator {
+    position: absolute;
+    top: 50%;
+    box-sizing: inherit;
+    border-radius: 50%;
+  }
 }

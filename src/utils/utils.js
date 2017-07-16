@@ -26,7 +26,7 @@ export const getrandom = (t1, t2, t3) => {
  * @returns {*|string|!Array.<T>}
  */
 export const getuuid = () => {
-  let [ s, hexDigits ] = [ [], '0123456789abcdef' ]
+  let [s, hexDigits] = [[], '0123456789abcdef']
   for (let i = 0; i < 36; i++) {
     s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
   }
@@ -52,4 +52,40 @@ export const trim = (str) => {
  */
 export const splitWords = (str) => {
   return trim(str).split(/\s+/)
+}
+
+/**
+ * 确保值在给定的范围内
+ * @param x
+ * @param min
+ * @param max
+ * @returns {number}
+ */
+export const stayBetween = (x, min, max) => {
+  return Math.max(min, Math.min(max, x))
+}
+
+/**
+ * 计算两点之间的距离（距离的平方）
+ * @param x1
+ * @param y1
+ * @param x2
+ * @param y2
+ * @returns {number}
+ */
+export const dist = (x1, y1, x2, y2) => {
+  let x = x2 - x1
+  let y = y2 - y1
+  return (x * x + y * y)
+}
+
+/**
+ * 返回角度的度量（0和2π之间）
+ * @param angle
+ * @param allowed
+ * @returns {number}
+ */
+export const getAngleMeasure = (angle, allowed) => {
+  allowed = (allowed !== undefined) ? !!allowed : false
+  return ((allowed && angle === 2 * Math.PI) ? 2 * Math.PI : angle - Math.floor(angle / (2.0 * Math.PI)) * 2.0 * Math.PI)
 }
