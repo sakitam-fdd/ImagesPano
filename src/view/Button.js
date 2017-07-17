@@ -6,7 +6,7 @@ import {addEvent} from '../events/Events'
 import * as DomUtils from '../dom/domUtils'
 class Button {
   constructor (options, type, style) {
-    this.button = ''
+    this.button = null
     this.mousedown = false
     this.options = options
     this.type = type
@@ -26,195 +26,14 @@ class Button {
         this.createZoomButton()
         break
       case 'fullscreen':
-        // Fullscreen icon size
-        var fullscreen_width = style.buttonsHeight * style.fullscreenRatio;
-        var fullscreen_vertical_space = style.buttonsHeight * 0.3;
-        var fullscreen_vertical_border = (style.buttonsHeight - fullscreen_vertical_space) / 2;
-        var fullscreen_horizontal_space = fullscreen_width * 0.3;
-        var fullscreen_horizontal_border = (fullscreen_width - fullscreen_horizontal_space) / 2 - style.fullscreenThickness;
-        var fullscreen_vertical_int = style.buttonsHeight - style.fullscreenThickness * 2;
-        // Fullscreen button
-        button = document.createElement('div');
-        button.style.cssFloat = 'right';
-        button.style.boxSizing = 'inherit';
-        button.style.padding = '10px';
-        button.style.width = fullscreen_width + 'px';
-        button.style.height = style.buttonsHeight + 'px';
-        button.style.backgroundColor = style.buttonsBackgroundColor;
-        button.style.cursor = 'pointer';
-        addEvent(button, 'click', function(){psv.toggleFullscreen();});
-        // Fullscreen icon left side
-        var fullscreen_left = document.createElement('div');
-        fullscreen_left.style.cssFloat = 'left';
-        fullscreen_left.style.boxSizing = 'inherit';
-        fullscreen_left.style.width = style.fullscreenThickness + 'px';
-        fullscreen_left.style.height = fullscreen_vertical_space + 'px';
-        fullscreen_left.style.borderStyle = 'solid';
-        fullscreen_left.style.borderColor = style.buttonsColor + ' transparent';
-        fullscreen_left.style.borderWidth = fullscreen_vertical_border + 'px 0';
-        button.appendChild(fullscreen_left);
-        // Fullscreen icon top/bottom sides (first half)
-        var fullscreen_tb_1 = document.createElement('div');
-        fullscreen_tb_1.style.cssFloat = 'left';
-        fullscreen_tb_1.style.boxSizing = 'inherit';
-        fullscreen_tb_1.style.width = fullscreen_horizontal_border + 'px';
-        fullscreen_tb_1.style.height = fullscreen_vertical_int + 'px';
-        fullscreen_tb_1.style.borderStyle = 'solid';
-        fullscreen_tb_1.style.borderColor = style.buttonsColor + ' transparent';
-        fullscreen_tb_1.style.borderWidth = style.fullscreenThickness + 'px 0';
-        button.appendChild(fullscreen_tb_1);
-        // Fullscreen icon top/bottom sides (second half)
-        var fullscreen_tb_2 = document.createElement('div');
-        fullscreen_tb_2.style.cssFloat = 'left';
-        fullscreen_tb_2.style.boxSizing = 'inherit';
-        fullscreen_tb_2.style.marginLeft = fullscreen_horizontal_space + 'px';
-        fullscreen_tb_2.style.width = fullscreen_horizontal_border + 'px';
-        fullscreen_tb_2.style.height = fullscreen_vertical_int + 'px';
-        fullscreen_tb_2.style.borderStyle = 'solid';
-        fullscreen_tb_2.style.borderColor = style.buttonsColor + ' transparent';
-        fullscreen_tb_2.style.borderWidth = style.fullscreenThickness + 'px 0';
-        button.appendChild(fullscreen_tb_2);
-        // Fullscreen icon right side
-        var fullscreen_right = document.createElement('div');
-        fullscreen_right.style.cssFloat = 'left';
-        fullscreen_right.style.boxSizing = 'inherit';
-        fullscreen_right.style.width = style.fullscreenThickness + 'px';
-        fullscreen_right.style.height = fullscreen_vertical_space + 'px';
-        fullscreen_right.style.borderStyle = 'solid';
-        fullscreen_right.style.borderColor = style.buttonsColor + ' transparent';
-        fullscreen_right.style.borderWidth = fullscreen_vertical_border + 'px 0';
-        button.appendChild(fullscreen_right);
-        var fullscreen_clearer = document.createElement('div');
-        fullscreen_clearer.style.clear = 'left';
-        button.appendChild(fullscreen_clearer);
-        // (In)active
-        psv.addAction('fullscreen-mode', toggleActive);
+        this.creatFullScreen()
         break
       case 'orientation':
-        // Gyroscope icon sizes
-        var gyroscope_sphere_width = style.buttonsHeight - style.gyroscopeThickness * 2;
-        var gyroscope_ellipses_big_axis = gyroscope_sphere_width - style.gyroscopeThickness * 4;
-        var gyroscope_ellipses_little_axis = gyroscope_sphere_width / 10;
-
-        // Gyroscope button
-        button = document.createElement('div');
-        button.style.cssFloat = 'right';
-        button.style.boxSizing = 'inherit';
-        button.style.padding = '10px';
-        button.style.width = style.buttonsHeight + 'px';
-        button.style.height = style.buttonsHeight + 'px';
-        button.style.backgroundColor = style.buttonsBackgroundColor;
-        button.style.position = 'relative';
-        button.style.cursor = 'pointer';
-
-        addEvent(button, 'click', function(){psv.toggleDeviceOrientation();});
-
-        var gyroscope_sphere = document.createElement('div');
-        gyroscope_sphere.style.boxSizing = 'inherit';
-        gyroscope_sphere.style.width = gyroscope_sphere_width + 'px';
-        gyroscope_sphere.style.height = gyroscope_sphere_width + 'px';
-        gyroscope_sphere.style.borderRadius = '50%';
-        gyroscope_sphere.style.border = style.gyroscopeThickness + 'px solid ' + style.buttonsColor;
-        button.appendChild(gyroscope_sphere);
-
-        var gyroscope_hor_ellipsis = document.createElement('div');
-        gyroscope_hor_ellipsis.style.boxSizing = 'inherit';
-        gyroscope_hor_ellipsis.style.width = gyroscope_ellipses_big_axis + 'px';
-        gyroscope_hor_ellipsis.style.height = gyroscope_ellipses_little_axis + 'px';
-        gyroscope_hor_ellipsis.style.borderRadius = '50%';
-        gyroscope_hor_ellipsis.style.border = style.gyroscopeThickness + 'px solid ' + style.buttonsColor;
-        gyroscope_hor_ellipsis.style.position = 'absolute';
-        gyroscope_hor_ellipsis.style.top = '50%';
-        gyroscope_hor_ellipsis.style.left = '50%';
-        gyroscope_hor_ellipsis.style.marginTop = -(gyroscope_ellipses_little_axis / 2 + style.gyroscopeThickness) + 'px';
-        gyroscope_hor_ellipsis.style.marginLeft = -(gyroscope_ellipses_big_axis / 2 + style.gyroscopeThickness) + 'px';
-        button.appendChild(gyroscope_hor_ellipsis);
-
-        var gyroscope_ver_ellipsis = document.createElement('div');
-        gyroscope_ver_ellipsis.style.boxSizing = 'inherit';
-        gyroscope_ver_ellipsis.style.width = gyroscope_ellipses_little_axis + 'px';
-        gyroscope_ver_ellipsis.style.height = gyroscope_ellipses_big_axis + 'px';
-        gyroscope_ver_ellipsis.style.borderRadius = '50%';
-        gyroscope_ver_ellipsis.style.border = style.gyroscopeThickness + 'px solid ' + style.buttonsColor;
-        gyroscope_ver_ellipsis.style.position = 'absolute';
-        gyroscope_ver_ellipsis.style.top = '50%';
-        gyroscope_ver_ellipsis.style.left = '50%';
-        gyroscope_ver_ellipsis.style.marginTop = -(gyroscope_ellipses_big_axis / 2 + style.gyroscopeThickness) + 'px';
-        gyroscope_ver_ellipsis.style.marginLeft = -(gyroscope_ellipses_little_axis / 2 + style.gyroscopeThickness) + 'px';
-        button.appendChild(gyroscope_ver_ellipsis);
-
-        // (In)active
-        psv.addAction('device-orientation', toggleActive);
-
-        break;
+        this.creatOrientation()
+        break
       case 'virtual-reality':
-        // Sizes
-        var vr_width = style.buttonsHeight * style.virtualRealityRatio;
-
-        var vr_eye_diameter = vr_width / 4;
-        var vr_eye_offset = vr_eye_diameter / 2;
-
-        // Button
-        button = document.createElement('div');
-        button.style.cssFloat = 'right';
-        button.style.position = 'relative';
-        button.style.boxSizing = 'inherit';
-        button.style.padding = '10px';
-        button.style.width = vr_width + 'px';
-        button.style.height = style.buttonsHeight + 'px';
-        button.style.backgroundColor = style.buttonsBackgroundColor;
-        button.style.cursor = 'pointer';
-
-        addEvent(button, 'click', function(){psv.toggleStereo();});
-
-        // Icon
-        var vr_rect = document.createElement('div');
-        vr_rect.style.boxSizing = 'inherit';
-        vr_rect.style.width = vr_width + 'px';
-        vr_rect.style.height = style.buttonsHeight + 'px';
-        vr_rect.style.borderRadius = style.virtualRealityBorderRadius + 'px';
-        vr_rect.style.backgroundColor = style.buttonsColor;
-        button.appendChild(vr_rect);
-
-        var left_eye = document.createElement('div');
-        left_eye.style.boxSizing = 'inherit';
-        left_eye.style.width = vr_eye_diameter + 'px';
-        left_eye.style.height = vr_eye_diameter + 'px';
-        left_eye.style.position = 'absolute';
-        left_eye.style.top = (vr_eye_offset + 10) + 'px';
-        left_eye.style.left = (vr_eye_offset + 10) + 'px';
-        left_eye.style.borderRadius = '50%';
-        left_eye.style.backgroundColor = style.backgroundColor;
-        button.appendChild(left_eye);
-
-        var right_eye = document.createElement('div');
-        right_eye.style.boxSizing = 'inherit';
-        right_eye.style.width = vr_eye_diameter + 'px';
-        right_eye.style.height = vr_eye_diameter + 'px';
-        right_eye.style.position = 'absolute';
-        right_eye.style.top = (vr_eye_offset + 10) + 'px';
-        right_eye.style.right = (vr_eye_offset + 10) + 'px';
-        right_eye.style.borderRadius = '50%';
-        right_eye.style.backgroundColor = style.backgroundColor;
-        button.appendChild(right_eye);
-
-        var nose = document.createElement('div');
-        nose.style.boxSizing = 'inherit';
-        nose.style.width = vr_eye_diameter + 'px';
-        nose.style.height = (style.buttonsHeight / 2) + 'px';
-        nose.style.position = 'absolute';
-        nose.style.left = '50%';
-        nose.style.bottom = '10px';
-        nose.style.marginLeft = -(vr_eye_diameter / 2) + 'px';
-        nose.style.borderTopLeftRadius = '50% 60%';
-        nose.style.borderTopRightRadius = '50% 60%';
-        nose.style.backgroundColor = style.backgroundColor;
-        button.appendChild(nose);
-
-        //(In)active
-        psv.addAction('stereo-effect', toggleActive);
-
-        break;
+        this.creatVirtualReality()
+        break
     }
   }
 
@@ -307,6 +126,137 @@ class Button {
     })
     addEvent(zoomMinus, 'click', () => {
       that.options.zoomOut()
+    })
+  }
+
+  /**
+   * 创建全屏按钮
+   */
+  creatFullScreen () {
+    // Fullscreen icon size
+    let that = this
+    that.button = DomUtils.create('div', 'images-pano-tool-fullScreen-button')
+    let fullscreenWidth = that.style.buttonsHeight * that.style.fullscreenRatio
+    let fullscreenVerticalSpace = that.style.buttonsHeight * 0.3
+    let fullscreenVerticalBorder = (that.style.buttonsHeight - fullscreenVerticalSpace) / 2
+    let fullscreenHorizontalSpace = fullscreenWidth * 0.3
+    let fullscreenHorizontalBorder = (fullscreenWidth - fullscreenHorizontalSpace) / 2 - that.style.fullscreenThickness
+    let fullscreenVerticalInt = that.style.buttonsHeight - that.style.fullscreenThickness * 2
+    // Fullscreen button
+    that.button.style.width = fullscreenWidth + 'px'
+    that.button.style.height = that.style.buttonsHeight + 'px'
+    that.button.style.backgroundColor = that.style.buttonsBackgroundColor
+    // Fullscreen icon left side
+    let fullscreenLeft = DomUtils.create('div', 'images-pano-tool-fullScreen-left-button', that.button)
+    fullscreenLeft.style.width = that.style.fullscreenThickness + 'px'
+    fullscreenLeft.style.height = fullscreenVerticalSpace + 'px'
+    fullscreenLeft.style.borderColor = that.style.buttonsColor + ' transparent'
+    fullscreenLeft.style.borderWidth = fullscreenVerticalBorder + 'px 0'
+    // Fullscreen icon top/bottom sides (first half)
+    let fullscreenTab = DomUtils.create('div', 'images-pano-tool-fullScreen-left-tb', that.button)
+    fullscreenTab.style.width = fullscreenHorizontalBorder + 'px'
+    fullscreenTab.style.height = fullscreenVerticalInt + 'px'
+    fullscreenTab.style.borderColor = that.style.buttonsColor + ' transparent'
+    fullscreenTab.style.borderWidth = that.style.fullscreenThickness + 'px 0'
+    // Fullscreen icon top/bottom sides (second half)
+    let fullscreenTab_ = DomUtils.create('div', 'images-pano-tool-fullScreen-left-tb', that.button)
+    fullscreenTab_.style.marginLeft = fullscreenHorizontalSpace + 'px'
+    fullscreenTab_.style.width = fullscreenHorizontalBorder + 'px'
+    fullscreenTab_.style.height = fullscreenVerticalInt + 'px'
+    fullscreenTab_.style.borderColor = that.style.buttonsColor + ' transparent'
+    fullscreenTab_.style.borderWidth = that.style.fullscreenThickness + 'px 0'
+    // Fullscreen icon right side
+    let fullscreenRight = DomUtils.create('div', 'images-pano-tool-fullScreen-right-button', that.button)
+    fullscreenRight.style.width = that.style.fullscreenThickness + 'px'
+    fullscreenRight.style.height = fullscreenVerticalSpace + 'px'
+    fullscreenRight.style.borderColor = that.style.buttonsColor + ' transparent'
+    fullscreenRight.style.borderWidth = fullscreenVerticalBorder + 'px 0'
+    addEvent(that.button, 'click', event => {
+      that.options.toggleFullscreen()
+    })
+    that.options.addAction('fullscreen-mode', event => {
+      that.toggleActive(event)
+    })
+  }
+
+  /**
+   * 创建方向控制按钮
+   */
+  creatOrientation () {
+    // Gyroscope icon sizes
+    let that = this
+    that.button = DomUtils.create('div', 'images-pano-tool-orientation-button')
+    let gyroscopeSphereWidth = that.style.buttonsHeight - that.style.gyroscopeThickness * 2
+    let gyroscopeEllipsesBigAxis = gyroscopeSphereWidth - that.style.gyroscopeThickness * 4
+    let gyroscopeEllipsesLittleAxis = gyroscopeSphereWidth / 10
+    that.button.style.width = that.style.buttonsHeight + 'px'
+    that.button.style.height = that.style.buttonsHeight + 'px'
+    that.button.style.backgroundColor = that.style.buttonsBackgroundColor
+    let gyroscopeSphere = DomUtils.create('div', 'images-pano-tool-sphere-button', that.button)
+    gyroscopeSphere.style.width = gyroscopeSphereWidth + 'px'
+    gyroscopeSphere.style.height = gyroscopeSphereWidth + 'px'
+    gyroscopeSphere.style.border = that.style.gyroscopeThickness + 'px solid ' + that.style.buttonsColor
+    let gyroscopeHorEllipsis = DomUtils.create('div', 'images-pano-tool-hor-ellipsis-button', that.button)
+    gyroscopeHorEllipsis.style.width = gyroscopeEllipsesBigAxis + 'px'
+    gyroscopeHorEllipsis.style.height = gyroscopeEllipsesLittleAxis + 'px'
+    gyroscopeHorEllipsis.style.border = that.style.gyroscopeThickness + 'px solid ' + that.style.buttonsColor
+    gyroscopeHorEllipsis.style.marginTop = -(gyroscopeEllipsesLittleAxis / 2 + that.style.gyroscopeThickness) + 'px'
+    gyroscopeHorEllipsis.style.marginLeft = -(gyroscopeEllipsesBigAxis / 2 + that.style.gyroscopeThickness) + 'px'
+    let gyroscopeVerEllipsis = DomUtils.create('div', 'images-pano-tool-ver-ellipsis-button', that.button)
+    gyroscopeVerEllipsis.style.width = gyroscopeEllipsesLittleAxis + 'px'
+    gyroscopeVerEllipsis.style.height = gyroscopeEllipsesBigAxis + 'px'
+    gyroscopeVerEllipsis.style.border = that.style.gyroscopeThickness + 'px solid ' + that.style.buttonsColor
+    gyroscopeVerEllipsis.style.marginTop = -(gyroscopeEllipsesBigAxis / 2 + that.style.gyroscopeThickness) + 'px'
+    gyroscopeVerEllipsis.style.marginLeft = -(gyroscopeEllipsesLittleAxis / 2 + that.style.gyroscopeThickness) + 'px'
+    addEvent(that.button, 'click', event => {
+      that.options.toggleDeviceOrientation()
+    })
+    that.options.addAction('device-orientation', event => {
+      that.toggleActive(event)
+    })
+  }
+
+  /**
+   * VR
+   */
+  creatVirtualReality () {
+    let that = this
+    let vrWidth = that.style.buttonsHeight * that.style.virtualRealityRatio
+    let vrEyeDiameter = vrWidth / 4
+    let vrEyeOffset = vrEyeDiameter / 2
+    // Button
+    that.button = DomUtils.create('div', 'images-pano-tool-virtual-reality-button')
+    that.button.style.width = vrWidth + 'px'
+    that.button.style.height = that.style.buttonsHeight + 'px'
+    that.button.style.backgroundColor = that.style.buttonsBackgroundColor
+    // Icon
+    let vrRect = DomUtils.create('div', 'images-pano-tool-vr-rect-button', that.button)
+    vrRect.style.width = vrWidth + 'px'
+    vrRect.style.height = that.style.buttonsHeight + 'px'
+    vrRect.style.borderRadius = that.style.virtualRealityBorderRadius + 'px'
+    vrRect.style.backgroundColor = that.style.buttonsColor
+    let leftEye = DomUtils.create('div', 'images-pano-tool-vr-left-eye-button', that.button)
+    leftEye.style.width = vrEyeDiameter + 'px'
+    leftEye.style.height = vrEyeDiameter + 'px'
+    leftEye.style.top = (vrEyeOffset + 10) + 'px'
+    leftEye.style.left = (vrEyeOffset + 10) + 'px'
+    leftEye.style.backgroundColor = that.style.backgroundColor
+    let rightEye = DomUtils.create('div', 'images-pano-tool-vr-right-eye-button', that.button)
+    rightEye.style.width = vrEyeDiameter + 'px'
+    rightEye.style.height = vrEyeDiameter + 'px'
+    rightEye.style.top = (vrEyeOffset + 10) + 'px'
+    rightEye.style.right = (vrEyeOffset + 10) + 'px'
+    rightEye.style.backgroundColor = that.style.backgroundColor
+    let nose = DomUtils.create('div', 'images-pano-tool-vr-nose-button', that.button)
+    nose.style.width = vrEyeDiameter + 'px'
+    nose.style.height = (that.style.buttonsHeight / 2) + 'px'
+    nose.style.marginLeft = -(vrEyeDiameter / 2) + 'px'
+    nose.style.backgroundColor = that.style.backgroundColor
+    addEvent(that.button, 'click', event => {
+      that.options.toggleStereo()
+    })
+    that.options.addAction('stereo-effect', event => {
+      that.toggleActive(event)
     })
   }
 

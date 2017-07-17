@@ -1,0 +1,26 @@
+.images-pano-tool-virtual-reality-button {
+  position: relative;
+  css-float: right;
+  box-sizing: inherit;
+  padding: 10px;
+  cursor: pointer;
+  .images-pano-tool-vr-rect-button {
+    box-sizing: inherit;
+  }
+  .images-pano-tool-vr-left-eye-button, .images-pano-tool-vr-right-eye-button {
+    box-sizing: inherit;
+    position: absolute;
+    border-radius: 50%;
+  }
+  .images-pano-tool-vr-nose-button {
+    position: absolute;
+    box-sizing: inherit;
+    left: 50%;
+    top: 10px;
+    border-top-left-radius: 50% 60%;
+    border-top-right-radius: 50% 60%;
+  }
+  .images-pano-tool-vr-nose-button {
+    box-sizing: inherit;
+  }
+}

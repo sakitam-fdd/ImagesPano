@@ -1,0 +1,18 @@
+.images-pano-tool-orientation-button {
+  css-float: right;
+  box-sizing: inherit;
+  padding: 10px;
+  position: relative;
+  cursor: pointer;
+  .images-pano-tool-sphere-button {
+    box-sizing: inherit;
+    border-radius: 50%;
+  }
+  .images-pano-tool-hor-ellipsis-button, .images-pano-tool-ver-ellipsis-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    box-sizing: inherit;
+    border-radius: 50%;
+  }
+}

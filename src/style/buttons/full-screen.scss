@@ -1,0 +1,21 @@
+.images-pano-tool-fullScreen-button {
+  css-float: left;
+  box-sizing: inherit;
+  padding: 10px;
+  position: relative;
+  cursor: pointer;
+  .images-pano-tool-fullScreen-left-button, .images-pano-tool-fullScreen-right-button {
+    css-float: left;
+    box-sizing: inherit;
+    border-style: solid;
+  }
+  .images-pano-tool-fullScreen-left-tb {
+    css-float: left;
+    box-sizing: inherit;
+    border-style: solid;
+  }
+  &:after {
+    overflow:hidden;
+    _zoom:1;
+  }
+}
