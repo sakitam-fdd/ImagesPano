@@ -1,0 +1,5 @@
+import './buttons/autorotate.scss'
+import './buttons/full-screen.scss'
+import './buttons/orientation.scss'
+import './buttons/virtual-reality.scss'
+import './buttons/zoom.scss'

@@ -1,4 +1,4 @@
-require('./style/index.scss')
+import './style/index'
 import * as DomUtils from './dom/domUtils'
 import * as browserUtils from './browserUtils/browser'
 import mix from './utils/mixin'
