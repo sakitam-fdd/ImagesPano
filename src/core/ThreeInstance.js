@@ -1,309 +1,370 @@
+import DefaultConfig from '../config/index'
 class ThreeInstance {
-  loadTexture (path) {
-    let texture = new THREE.Texture()
-    let loader = new THREE.ImageLoader()
-    let onLoad = (img) => {
-      texture.needsUpdate = true
-      texture.image = img
-      this.createScene(texture)
+  /**
+   * 加载THREE场景数据
+   * @desc 使用裁剪模式时必须提供六张全景图，完整的全景图裁剪拼接（前后左右上下）
+   * @param panorama
+   * @returns {*}
+   */
+  loadTexture (panorama) {
+    let tempPanorama = []
+    if (Array.isArray(panorama)) {
+      if (panorama.length !== 6) {
+        throw new Error('使用裁剪模式时必须提供六张全景图！')
+      }
+      for (let i = 0; i < 6; i++) {
+        tempPanorama[i] = panorama[DefaultConfig.CUBE_MAP[i]]
+      }
+      panorama = tempPanorama
+    } else if (typeof panorama === 'object') {
+      let flag = DefaultConfig.CUBE_HASHMAP.every(side => {
+        return !!panorama[side]
+      })
+      if (!flag) {
+        throw new Error('使用裁剪模式时必须提供六张全景图')
+      }
+      DefaultConfig.CUBE_HASHMAP.forEach((side, index) => {
+        tempPanorama[index] = panorama[side]
+      })
+      panorama = tempPanorama
     }
-    loader.load(path, onLoad)
-  }
-
-  createScene (texture) {
-    // New size?
-    if (new_viewer_size.width !== undefined)
-      container.style.width = new_viewer_size.width.css;
-
-    if (new_viewer_size.height !== undefined)
-      container.style.height = new_viewer_size.height.css;
-
-    fitToContainer();
-
-    // The chosen renderer depends on whether WebGL is supported or not
-    renderer = (isWebGLSupported()) ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
-    renderer.setSize(viewer_size.width, viewer_size.height);
-
-    scene = new THREE.Scene();
-
-    camera = new THREE.PerspectiveCamera(PSV_FOV_MAX, viewer_size.ratio, 1, 300);
-    camera.position.set(0, 0, 0);
-    scene.add(camera);
-
-    // Sphere
-    var geometry = new THREE.SphereGeometry(200, rings, segments);
-    var material = new THREE.MeshBasicMaterial({map: texture, overdraw: true});
-    var mesh = new THREE.Mesh(geometry, material);
-    mesh.scale.x = -1;
-    scene.add(mesh);
-
-    // Canvas container
-    canvas_container = document.createElement('div');
-    canvas_container.style.position = 'absolute';
-    canvas_container.style.zIndex = 0;
-    root.appendChild(canvas_container);
-
-    // Navigation bar?
-    if (display_navbar) {
-      navbar.setStyle(navbar_style);
-      navbar.create();
-      root.appendChild(navbar.getBar());
-    }
-
-    // Overlay?
-    if (overlay !== null) {
-      // Add the image
-      var overlay_img = document.createElement('img');
-
-      overlay_img.onload = function () {
-        overlay_img.style.display = 'block';
-
-        // Image position
-        overlay_img.style.position = 'absolute';
-        overlay_img.style[overlay.position.x] = '5px';
-        overlay_img.style[overlay.position.y] = '5px';
-
-        if (overlay.position.y == 'bottom' && display_navbar)
-          overlay_img.style.bottom = (navbar.getBar().offsetHeight + 5) + 'px';
-
-        // Should we resize the image?
-        if (overlay.size !== undefined) {
-          overlay_img.style.width = overlay.size.width;
-          overlay_img.style.height = overlay.size.height;
-        }
-
-        root.appendChild(overlay_img);
-      };
-
-      overlay_img.src = overlay.image;
-    }
-
-    // Adding events
-    addEvent(window, 'resize', fitToContainer);
-
-    if (user_interactions_allowed) {
-      addEvent(canvas_container, 'mousedown', onMouseDown);
-      addEvent(document, 'mousemove', onMouseMove);
-      addEvent(canvas_container, 'mousemove', showNavbar);
-      addEvent(document, 'mouseup', onMouseUp);
-
-      addEvent(canvas_container, 'touchstart', onTouchStart);
-      addEvent(document, 'touchend', onMouseUp);
-      addEvent(document, 'touchmove', onTouchMove);
-
-      if (scroll_to_zoom) {
-        addEvent(canvas_container, 'mousewheel', onMouseWheel);
-        addEvent(canvas_container, 'DOMMouseScroll', onMouseWheel);
+    if (Array.isArray(panorama)) {
+      if (this.prop.isCubemap === false) {
+        throw new Error('初始化失败！')
+      }
+      if (this.config.fisheye) {
+        console.warn('鱼眼模式下全景图可能会发生变形！')
       }
 
-      self.addAction('fullscreen-mode', toggleArrowKeys);
-    }
-
-    addEvent(document, 'fullscreenchange', fullscreenToggled);
-    addEvent(document, 'mozfullscreenchange', fullscreenToggled);
-    addEvent(document, 'webkitfullscreenchange', fullscreenToggled);
-    addEvent(document, 'MSFullscreenChange', fullscreenToggled);
-
-    sphoords.addListener(onDeviceOrientation);
-
-    // First render
-    container.innerHTML = '';
-    container.appendChild(root);
-
-    var canvas = renderer.domElement;
-    canvas.style.display = 'block';
-
-    canvas_container.appendChild(canvas);
-    render();
-
-    // Zoom?
-    if (zoom_lvl > 0)
-      zoom(zoom_lvl);
-
-    // Animation?
-    anim();
-
-    /**
-     * Indicates that the loading is finished: the first image is rendered
-     * @callback PhotoSphereViewer~onReady
-     **/
-
-    triggerAction('ready');
-  }
-
-  /**
-   * Renders an image.
-   * @private
-   * @return {void}
-   **/
-  render () {
-    let point = new THREE.Vector3()
-    point.setX(Math.cos(lat) * Math.sin(long))
-    point.setY(Math.sin(lat))
-    point.setZ(Math.cos(lat) * Math.cos(long))
-    camera.lookAt(point)
-    if (stereo_effect !== null) {
-      stereo_effect.render(scene, camera)
+      if (this.config.cache_texture === DefaultConfig.DEFAULTS.cache_texture) {
+        this.config.cache_texture *= 6
+      }
+      this.prop.isCubemap = true
+      return this._loadCubemapTexture(panorama)
     } else {
-      renderer.render(scene, camera)
+      if (this.prop.isCubemap === true) {
+        throw new Error('当前模式下使用立方体地图初始化，不能切换到等角度全景图。')
+      }
+      this.prop.isCubemap = false
+      return this.loadEquirectangularTexture(panorama)
     }
   }
 
   /**
-   * Starts the stereo effect.
+   * 加载THREE纹理数据
+   * @param panorama
+   * @returns {*}
    * @private
-   * @return {void}
-   **/
-
-  startStereo () {
-    stereo_effect = new THREE.StereoEffect(renderer);
-    stereo_effect.eyeSeparation = eyes_offset;
-    stereo_effect.setSize(viewer_size.width, viewer_size.height);
-
-    startDeviceOrientation();
-    enableFullscreen();
-    navbar.mustBeHidden();
-    render();
-
-    /**
-     * Indicates that the stereo effect has been toggled.
-     * @callback PhotoSphereViewer~onStereoEffectToggled
-     * @param {boolean} enabled - `true` if stereo effect is enabled, `false` otherwise
-     **/
-
-    triggerAction('stereo-effect', true);
-  }
-
-  /**
-   * Stops the stereo effect.
-   * @private
-   * @return {void}
-   **/
-
-  stopStereo () {
-    stereo_effect = null;
-    renderer.setSize(viewer_size.width, viewer_size.height);
-
-    navbar.mustBeHidden(false);
-    render();
-
-    triggerAction('stereo-effect', false);
-  }
-
-  /**
-   * Toggles the stereo effect (virtual reality).
-   * @public
-   * @return {void}
-   **/
-
-  toggleStereo () {
-    if (stereo_effect !== null)
-      stopStereo();
-
-    else
-      startStereo();
-  }
-
-  /**
-   * Automatically animates the panorama.
-   * @private
-   * @return {void}
-   **/
-
-  anim () {
-    if (anim_delay !== false)
-      anim_timeout = setTimeout(startAutorotate, anim_delay);
-  }
-
-  /**
-   * Automatically rotates the panorama.
-   * @private
-   * @return {void}
-   **/
-
-  autorotate () {
-    lat -= (lat - anim_lat_target) * anim_lat_offset;
-
-    long += anim_long_offset;
-
-    var again = true;
-
-    if (!whole_circle) {
-      long = stayBetween(long, PSV_MIN_LONGITUDE, PSV_MAX_LONGITUDE);
-
-      if (long == PSV_MIN_LONGITUDE || long == PSV_MAX_LONGITUDE) {
-        // Must we reverse the animation or simply stop it?
-        if (reverse_anim)
-          anim_long_offset *= -1;
-
-        else {
-          stopAutorotate();
-          again = false;
-        }
+   */
+  loadEquirectangularTexture (panorama) {
+    if (this.config.cacheTexture) {
+      let cache = this.getPanoramaCache(panorama)
+      if (cache) {
+        this.prop.pano_data = cache.pano_data
       }
     }
+    return (this._loadXMP(panorama).then(panoData => {
+      let loader = new THREE.ImageLoader()
+      let progress = panoData ? 100 : 0
+      loader.setCrossOrigin('anonymous')
+      let onload = function(img) {
+        progress = 100;
 
-    long = getAngleMeasure(long, true);
+        this.loader.setProgress(progress);
 
-    triggerAction('position-updated', {
-      longitude: long,
-      latitude: lat
-    });
+        /**
+         * @event panorama-load-progress
+         * @memberof PhotoSphereViewer
+         * @summary Triggered while a panorama image is loading
+         * @param {string} panorama
+         * @param {int} progress
+         */
+        this.trigger('panorama-load-progress', panorama, progress);
 
-    render();
+        // Config XMP data
+        if (!pano_data && this.config.pano_data) {
+          pano_data = PSVUtils.clone(this.config.pano_data);
+        }
 
-    if (again)
-      autorotate_timeout = setTimeout(autorotate, PSV_ANIM_TIMEOUT);
+        // Default XMP data
+        if (!pano_data) {
+          pano_data = {
+            full_width: img.width,
+            full_height: img.height,
+            cropped_width: img.width,
+            cropped_height: img.height,
+            cropped_x: 0,
+            cropped_y: 0
+          };
+        }
+
+        this.prop.pano_data = pano_data;
+
+        var texture;
+
+        var ratio = Math.min(pano_data.full_width, PhotoSphereViewer.SYSTEM.maxTextureWidth) / pano_data.full_width;
+
+        // resize image / fill cropped parts with black
+        if (ratio !== 1 || pano_data.cropped_width != pano_data.full_width || pano_data.cropped_height != pano_data.full_height) {
+          var resized_pano_data = PSVUtils.clone(pano_data);
+
+          resized_pano_data.full_width *= ratio;
+          resized_pano_data.full_height *= ratio;
+          resized_pano_data.cropped_width *= ratio;
+          resized_pano_data.cropped_height *= ratio;
+          resized_pano_data.cropped_x *= ratio;
+          resized_pano_data.cropped_y *= ratio;
+
+          img.width = resized_pano_data.cropped_width;
+          img.height = resized_pano_data.cropped_height;
+
+          var buffer = document.createElement('canvas');
+          buffer.width = resized_pano_data.full_width;
+          buffer.height = resized_pano_data.full_height;
+
+          var ctx = buffer.getContext('2d');
+          ctx.drawImage(img, resized_pano_data.cropped_x, resized_pano_data.cropped_y, resized_pano_data.cropped_width, resized_pano_data.cropped_height);
+
+          texture = new THREE.Texture(buffer);
+        }
+        else {
+          texture = new THREE.Texture(img);
+        }
+
+        texture.needsUpdate = true;
+        texture.minFilter = THREE.LinearFilter;
+        texture.generateMipmaps = false;
+
+        if (this.config.cache_texture) {
+          this.putPanoramaCache({
+            panorama: panorama,
+            image: texture,
+            pano_data: pano_data
+          });
+        }
+
+        defer.resolve(texture);
+      }
+      let onprogress = function(e) {
+        if (e.lengthComputable) {
+          var new_progress = parseInt(e.loaded / e.total * 100);
+
+          if (new_progress > progress) {
+            progress = new_progress;
+            this.loader.setProgress(progress);
+            this.trigger('panorama-load-progress', panorama, progress);
+          }
+        }
+      }
+      let onerror = function(e) {
+        this.container.textContent = 'Cannot load image';
+        defer.reject(e);
+        throw new PSVError('Cannot load image');
+      };
+      loader.load(panorama, onload.bind(this), onprogress.bind(this), onerror.bind(this))
+    }).bind(this))
   }
 
   /**
-   * Starts the autorotate animation.
+   * 创建六面立方体纹理数据
+   * @param panorama
    * @private
-   * @return {void}
-   **/
-
-  startAutorotate () {
-    autorotate();
-
-    /**
-     * Indicates that the autorotate animation state has changed.
-     * @callback PhotoSphereViewer~onAutorotateChanged
-     * @param {boolean} enabled - `true` if animation is enabled, `false` otherwise
-     **/
-
-    triggerAction('autorotate', true);
+   */
+  loadCubemapTexture (panorama) {
+    let [loader, progress, loaded, done] = [new THREE.ImageLoader(), [0, 0, 0, 0, 0, 0], [], 0]
+    loader.setCrossOrigin('anonymous');
+    let onend = function() {
+      loaded.forEach(function(img) {
+        img.needsUpdate = true;
+        img.minFilter = THREE.LinearFilter
+        img.generateMipmaps = false
+      })
+    }
+    console.log(onend(), progress, done)
   }
 
   /**
-   * Stops the autorotate animation.
+   * 创建纹理
+   * @param texture
    * @private
-   * @return {void}
-   **/
-
-  stopAutorotate () {
-    clearTimeout(anim_timeout);
-    anim_timeout = null;
-
-    clearTimeout(autorotate_timeout);
-    autorotate_timeout = null;
-
-    triggerAction('autorotate', false);
+   */
+  setTexture (texture) {
+    if (!this.scene) {
+      this.createScene()
+    }
+    if (this.prop.isCubemap) {
+      for (let i = 0; i < 6; i++) {
+        if (this.mesh.material.materials[i].map) {
+          this.mesh.material.materials[i].map.dispose()
+        }
+        this.mesh.material.materials[i].map = texture[i]
+      }
+    } else {
+      if (this.mesh.material.map) {
+        this.mesh.material.map.dispose()
+      }
+      this.mesh.material.map = texture
+    }
+    this.render()
   }
 
   /**
-   * Launches/stops the autorotate animation.
-   * @public
-   * @return {void}
-   **/
+   * 创建3D场景和GUI组件
+   */
+  createScene () {
+    this.raycaster = new THREE.Raycaster()
+    this.renderer = DefaultConfig.SYSTEM.isWebGLSupported && this.config.webgl ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer()
+    this.renderer.setSize(this.prop.size.width, this.prop.size.height)
+    this.renderer.setPixelRatio(DefaultConfig.SYSTEM.pixelRatio)
+    let cameraDistance = DefaultConfig.SPHERE_RADIUS
+    if (this.prop.isCubemap) {
+      cameraDistance *= Math.sqrt(3)
+    }
+    if (this.config.fisheye) {
+      cameraDistance += DefaultConfig.SPHERE_RADIUS
+    }
+    this.camera = new THREE.PerspectiveCamera(this.config.default_fov, this.prop.size.width / this.prop.size.height, 1, cameraDistance)
+    this.camera.position.set(0, 0, 0)
+    if (this.config.gyroscope && PSVUtils.checkTHREE('DeviceOrientationControls')) {
+      this.doControls = new THREE.DeviceOrientationControls(this.camera)
+    }
+    this.scene = new THREE.Scene()
+    this.scene.add(this.camera)
+    if (this.prop.isCubemap) {
+      this.createCubemap()
+    } else {
+      this.createSphere()
+    }
+    // create canvas container
+    this.canvasContainer = document.createElement('div')
+    this.canvasContainer.className = 'psv-canvas-container'
+    this.renderer.domElement.className = 'psv-canvas'
+    this.container.appendChild(this.canvasContainer)
+    this.canvasContainer.appendChild(this.renderer.domElement)
+  }
 
-  toggleAutorotate () {
-    clearTimeout(anim_timeout);
+  /**
+   * 创建球形网格
+   * @private
+   */
+  createSphere () {
+    let geometry = new THREE.SphereGeometry(
+      DefaultConfig.SPHERE_RADIUS,
+      DefaultConfig.SPHERE_VERTICES,
+      DefaultConfig.SPHERE_VERTICES,
+      -PSVUtils.HalfPI
+    )
+    let material = new THREE.MeshBasicMaterial({
+      side: THREE.DoubleSide,
+      overdraw: DefaultConfig.SYSTEM.isWebGLSupported && this.config.webgl ? 0 : 1
+    })
+    this.mesh = new THREE.Mesh(geometry, material)
+    this.mesh.scale.x = -1
+    this.scene.add(this.mesh)
+  }
 
-    if (!!autorotate_timeout)
-      stopAutorotate();
+  /**
+   * 创建立方体网格
+   */
+  createCubemap () {
+    let geometry = new THREE.BoxGeometry(
+      DefaultConfig.SPHERE_RADIUS * 2, DefaultConfig.SPHERE_RADIUS * 2, DefaultConfig.SPHERE_RADIUS * 2,
+      DefaultConfig.CUBE_VERTICES, DefaultConfig.CUBE_VERTICES, DefaultConfig.CUBE_VERTICES
+    )
+    let materials = [];
+    for (let i = 0; i < 6; i++) {
+      materials.push(new THREE.MeshBasicMaterial({
+        overdraw: DefaultConfig.SYSTEM.isWebGLSupported && this.config.webgl ? 0 : 1
+      }))
+    }
+    this.mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials))
+    this.mesh.position.x -= DefaultConfig.SPHERE_RADIUS
+    this.mesh.position.y -= DefaultConfig.SPHERE_RADIUS
+    this.mesh.position.z -= DefaultConfig.SPHERE_RADIUS
+    this.mesh.applyMatrix(new THREE.Matrix4().makeScale(1, 1, -1))
+    this.scene.add(this.mesh)
+    let hiddenMaterial = new THREE.MeshBasicMaterial({
+      side: THREE.BackSide,
+      visible: false
+    })
+    let hiddenMesh = new THREE.Mesh(geometry, hiddenMaterial)
+    this.scene.add(hiddenMesh)
+  }
 
-    else
-      startAutorotate();
+  /**
+   * 从当前过渡新纹理
+   * @param texture
+   * @param position
+   * @private
+   */
+  transition (texture, position) {
+    if (this.prop.isCubemap) {
+      throw new Error('不能转换')
+    }
+    // create a new sphere with the new texture
+    let geometry = new THREE.SphereGeometry(
+      PhotoSphereViewer.SPHERE_RADIUS * 0.9,
+      PhotoSphereViewer.SPHERE_VERTICES,
+      PhotoSphereViewer.SPHERE_VERTICES,
+      -PSVUtils.HalfPI
+    )
+    let material = new THREE.MeshBasicMaterial({
+      side: THREE.DoubleSide,
+      overdraw: DefaultConfig.SYSTEM.isWebGLSupported && this.config.webgl ? 0 : 1,
+      map: texture,
+      transparent: true,
+      opacity: 0
+    })
+    let mesh = new THREE.Mesh(geometry, material)
+    mesh.scale.x = -1
+    if (position) {
+      mesh.rotateY(position.longitude - this.prop.longitude)
+      let axis = new THREE.Vector3(0, 1, 0).cross(this.camera.getWorldDirection()).normalize()
+      let q = new THREE.Quaternion().setFromAxisAngle(axis, position.latitude - this.prop.latitude)
+      mesh.quaternion.multiplyQuaternions(q, mesh.quaternion)
+    }
+    this.scene.add(mesh)
+    this.render()
+  }
+
+  /**
+   * 平滑过渡反向自转
+   * @private
+   */
+  reverseAutorotate () {
+    let that = this
+    let newSpeed = -this.config.animSpeed
+    let range = this.config.longitudeRange
+    this.config.longitudeRange = null
+  }
+
+  /**
+   * 添加全景数据到缓存
+   * @param cache
+   * @private
+   */
+  putPanoramaCache (cache) {
+    if (!this.config.cacheTexture) {
+      throw new Error('数据无法存入缓存');
+    }
+    let existingCache = this.getPanoramaCache(cache.panorama)
+    if (existingCache) {
+      existingCache.image = cache.image
+      existingCache.panoData = cache.panoData
+    } else {
+      // 删除历史元素
+      this.prop.cache = this.prop.cache.slice(0, this.config.cacheTexture - 1)
+      this.prop.cache.unshift(cache)
+    }
+  }
+
+  /**
+   * 停止所有动作
+   */
+  stopAll () {
+    this.stopAutorotate()
+    this.stopAnimation()
+    this.stopGyroscopeControl()
   }
 }
 

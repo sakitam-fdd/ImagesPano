@@ -5,6 +5,7 @@ import mix from './utils/mixin'
 import * as AjaxUtil from './utils/ajax'
 import DateUtils from './utils/DataUtils'
 import ThreeInstance from './core/ThreeInstance'
+import Observable from './events/Observable'
 class ImagesPano extends mix(DateUtils, ThreeInstance) {
   constructor (params) {
     super()
@@ -72,6 +73,11 @@ class ImagesPano extends mix(DateUtils, ThreeInstance) {
       horizontalFov: 360,
       verticalFov: 180
     }
+    /**
+     * 事件
+     * @type {Observable}
+     */
+    this.Observable = new Observable()
     this.actionParams()
     /**
      * 初始化
